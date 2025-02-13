@@ -1,0 +1,366 @@
+<!-- ecg_quiz.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>آزمون نوار قلب</title>
+    <link rel="stylesheet" href="style.css">
+    <style>        .question {
+            display: none;
+            margin-bottom: 20px;
+        }
+        .question.active {
+            display: block;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        #score-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>آزمون نوار قلب</h1>
+    <p>
+        در این بخش می‌توانید دانش خود را در زمینه نوار قلب با آزمون‌های متنوع بسنجید. به سوالات زیر پاسخ دهید. در صورت پاسخ اشتباه، تمامی پاسخ‌ها پاک شده و باید از ابتدا شروع کنید.
+    </p>
+
+    <div id="quiz-container">
+        <!-- سوالات به صورت داینامیک توسط JavaScript اضافه می‌شوند -->
+    </div>
+
+    <button id="next-button" onclick="nextQuestion()" style="display: none;">سوال بعدی</button>
+    <button id="restart-button" onclick="restartQuiz()" style="display: none;">شروع مجدد</button>    <div id="score-display"></div>
+
+    <script>
+        const questions = [
+            {
+                text: "کدام موج در ECG نشان‌دهنده دپلاریزاسیون دهلیزها است؟",
+                options: ["موج P", "کمپلکس QRS", "موج T", "قطعه ST"],
+                correctAnswer: 0,
+                points: 1
+            },
+            {
+                text: "طول طبیعی فاصله PR چقدر است؟",
+                options: ["کمتر از 0.12 ثانیه", "بین 0.12 تا 0.20 ثانیه", "بیش از 0.20 ثانیه", "بین 0.06 تا 0.10 ثانیه"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "کدام یک از موارد زیر می‌تواند باعث تاکی‌کاردی سینوسی شود؟",
+                options: ["ورزش", "تب", "استرس", "همه موارد"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "کدام یک از موارد زیر مشخصه فیبریلاسیون دهلیزی است؟",
+                options: ["ریتم منظم", "عدم وجود موج P مشخص", "کمپلکس QRS باریک", "همه موارد"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "بالا رفتن قطعه ST در کدام بیماری دیده می‌شود؟",
+                options: ["انفارکتوس میوکارد حاد (STEMI)", "ایسکمی میوکارد", "پریکاردیت", "همه موارد"],
+                correctAnswer: 0,
+                points: 1
+            },
+            {
+                text: "کدام موج در ECG نشان‌دهنده رپلاریزاسیون بطن‌ها است؟",
+                options: ["موج P", "کمپلکس QRS", "موج T", "قطعه ST"],
+                correctAnswer: 2,
+                points: 1
+            },
+            {
+                text: "مدت زمان طبیعی کمپلکس QRS چقدر است؟",
+                options: ["کمتر از 0.06 ثانیه", "بین 0.06 تا 0.10 ثانیه", "بین 0.10 تا 0.12 ثانیه", "بیش از 0.12 ثانیه"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "کدام یک از موارد زیر ممکن است باعث برادی‌کاردی سینوسی شود؟",
+                options: ["ورزشکاران حرفه‌ای", "کم‌کاری تیروئید", "مصرف بتابلاکرها", "همه موارد"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "در فلوتر دهلیزی، امواج دهلیزی چه شکلی دارند؟",
+                options: ["نامنظم", "اره‌ای", "مثلثی", "مربعی"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "کدام آریتمی بطنی می‌تواند باعث ایست قلبی شود؟",
+                options: ["PVC", "VT", "VF", "PAC"],
+                correctAnswer: 2,
+                points: 1
+            },
+            {
+                text: "در بلوک درجه یک دهلیزی-بطنی، فاصله PR چگونه است؟",
+                options: ["کوتاه", "طبیعی", "طولانی", "متغیر"],
+                correctAnswer: 2,
+                points: 1
+            },
+            {
+                text: "در بلوک درجه دو دهلیزی-بطنی نوع Mobitz I (ونکه‌باخ)، چه اتفاقی می‌افتد؟",
+                options: ["فاصله PR ثابت است", "فاصله PR به تدریج طولانی می‌شود تا یک ضربان حذف شود", "کمپلکس QRS به طور ناگهانی حذف می‌شود", "هیچ ارتباطی بین دهلیزها و بطن‌ها وجود ندارد"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "در بلوک درجه سه دهلیزی-بطنی (کامل)، چه اتفاقی می‌افتد؟",
+                options: ["فاصله PR ثابت است", "فاصله PR به تدریج طولانی می‌شود", "کمپلکس QRS به طور ناگهانی حذف می‌شود", "هیچ ارتباطی بین دهلیزها و بطن‌ها وجود ندارد"],                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "کدام یک از موارد زیر ممکن است باعث پهن شدن کمپلکس QRS شود؟",
+                options: ["بلوک شاخه‌ای", "هیپرتروفی بطنی", "PVC", "همه موارد"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "موج Q پاتولوژیک نشانه چیست؟",
+                options: ["ایسکمی میوکارد", "انفارکتوس میوکارد قدیمی", "هیپرتروفی بطنی", "پریکاردیت"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "پایین افتادن قطعه ST ممکن است نشانه چیست؟",
+                options: ["انفارکتوس میوکارد حاد", "ایسکمی میوکارد", "پریکاردیت", "هیپرکالمی"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "موج T معکوس ممکن است نشانه چیست؟",
+                options: ["ایسکمی میوکارد", "هیپرتروفی بطنی", "اختلالات الکترولیتی", "همه موارد"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "موج T بلند و نوک‌تیز ممکن است نشانه چیست؟",
+                options: ["هیپوکالمی", "هیپرکالمی", "هیپوکلسمی", "هیپرکلسمی"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "فرمول Bazett برای محاسبه چیست؟",
+                options: ["ضربان قلب", "فاصله PR", "QTc", "محور قلب"],
+                correctAnswer: 2,
+                points: 1
+            },
+            {
+                text: "اگر کمپلکس QRS در لید I مثبت و در aVF منفی باشد، محور قلب چگونه است؟",
+                options: ["نرمال", "انحراف به چپ", "انحراف به راست", "انحراف شدید"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "کدام لید ECG در محل چهارمین فضای بین‌دنده‌ای، سمت راست استرنوم قرار می‌گیرد؟",
+                options: ["V1", "V2", "V3", "V4"],
+                correctAnswer: 0,
+                points: 1
+            },
+            {
+                text: "کدام لید ECG در محل پنجمین فضای بین‌دنده‌ای، خط میدکلاویکولار قرار می‌گیرد؟",                options: ["V3", "V4", "V5", "V6"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "کدام یک از موارد زیر جزو لیدهای اندامی تقویت شده نیست؟",
+                options: ["aVR", "aVL", "aVF", "V1"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "در کدام بیماری، بالا رفتن منتشر قطعه ST در اکثر لیدها دیده می‌شود؟",
+                options: ["انفارکتوس میوکارد حاد", "پریکاردیت", "آنژین صدری", "بلوک شاخه‌ای"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "در هیپرتروفی بطن چپ، دامنه کمپلکس QRS در کدام لیدها افزایش می‌یابد؟",
+                options: ["V1-V2", "V5-V6", "II, III, aVF", "aVR, aVL, aVF"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {                text: "در بلوک شاخه راست، چه الگویی در لید V1 دیده می‌شود؟",
+                options: ["M شکل", "W شکل", "گوش خرگوش (RSR')", "QRS پهن بدون الگوی خاص"],
+                correctAnswer: 2,                points: 1
+            },
+            {
+                text: "در هیپوکالمی، چه تغییری در موج T دیده می‌شود؟",
+                options: ["بلند و نوک‌تیز", "صاف یا معکوس", "دوفازی", "هیچ تغییری"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "کدام یک از موارد زیر جزو علل تاکی‌کاردی بطنی نیست؟",
+                options: ["بیماری عروق کرونر", "نارسایی قلبی", "هیپوکالمی", "برادی‌کاردی سینوسی"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "در فیبریلاسیون بطنی، چه چیزی در ECG دیده می‌شود؟",
+                options: ["ریتم منظم", "کمپلکس‌های QRS پهن", "خط پایه نامنظم و آشفته", "امواج P منظم"],
+                correctAnswer: 2,
+                points: 1
+            },
+            {
+                text: "کدام یک از موارد زیر جزو درمان‌های فیبریلاسیون بطنی است؟",
+                options: ["داروهای ضدآریتمی", "دفیبریلاسیون الکتریکی", "کاردیوورژن", "همه موارد"],
+                correctAnswer: 1,
+                points: 1
+            },
+             {
+                text: "کدام موج در ECG نشان دهنده ی عبور موج از گره دهلیزی بطنی است؟",
+                options: ["موج P", "کمپلکس QRS", "موج T", "هیچکدام"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "کدام موجه در نوار قلب پتانسیل عمل بطن را نشان میدهد؟",
+                options: ["موج P", "کمپلکس QRS", "موج T", "هیچکدام"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "کدام موجه در نوار قلب به مرحله ی استراحت بطن ها مربوط میشود؟",
+                options: ["موج P", "کمپلکس QRS", "موج T", "هیچکدام"],
+                correctAnswer: 2,
+                points: 1
+            },
+            {
+                text: "کدام گزینه موجی در نوار قلب نیست؟",
+                options: ["موج P", "کمپلکس QRS", "موج T", "موج L"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "کدام گزینه صحیح است؟",
+                options: ["فاصله ی بین P-Rنشان دهنده ی زمان بین شروع انقباض دهلیز و شروع انقباض بطن است", "فاصله ی بین Q-T زمان انقباض بطن ها را نشان میدهد", "فاصله ی R-R برای تعیین ریت قلب استفاده میشود", "همه ی موارد"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "کدام گزینه صحیح است؟",
+                options: ["در AVR موج P و QRS و T مثبت هستند", "در AVR موج P و QRS و T منفی هستند", "در AVR موج P  منفی و QRS و T مثبت هستند", "در AVR موج P و QRS  مثبت و T منفی هستند"],
+                correctAnswer: 1,
+                points: 1
+            },
+            {
+                text: "کدام گزینه صحیح است؟",
+                options: ["در V1 موج P و QRS و T مثبت هستند", "در V1 موج P و QRS و T منفی هستند", "در V1 موج P  مثبت و QRS و T منفی هستند", "در V1 موج P و T  مثبت و QRS منفی هستند"],
+                correctAnswer: 3,
+                points: 1
+            },
+            {
+                text: "کدام گزینه صحیح است؟",
+                options: ["در V6 موج P و QRS و T مثبت هستند", "در V6 موج P و QRS و T منفی هستند", "در V6 موج P  منفی و QRS و T مثبت هستند", "در V6 موج P و QRS  مثبت و T منفی هستند"],
+                correctAnswer: 0,
+                points: 1
+            },
+            {
+                text: "محور الکتریکی قلب به کدام سمت است؟",
+                options: ["بالا و چپ", "بالا و راست", "پایین و چپ", "پایین و راست"],
+                correctAnswer: 2,
+                points: 1
+            },
+            {
+                text: "کدام گزینه صحیح است؟",                options: ["در نوار قلب 12 لید وجود دارد", "در نوار قلب 6 لید سینه ای وجود دارد", "در نوار قلب 6 لید اندامی وجود دارد", "همه موارد"],
+                correctAnswer: 3,
+                points: 1
+            },
+
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];        let totalScore = 0;
+
+        function displayQuestion() {
+            const quizContainer = document.getElementById("quiz-container");
+            quizContainer.innerHTML = ""; // پاک کردن سوالات قبلی
+
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
+                const questionDiv = document.createElement("div");
+                questionDiv.classList.add("question", "active");
+                questionDiv.innerHTML = `
+                    <p>${currentQuestionIndex + 1}. ${question.text}</p>
+                    <div class="options">
+                        ${question.options.map((option, index) => `
+                            <label>
+                                <input type="radio" name="q${currentQuestionIndex}" value="${index}">
+                                ${option}
+                            </label>
+                        `).join("")}
+                    </div>
+                    <div class="feedback"></div>
+                `;
+                quizContainer.appendChild(questionDiv);
+
+                // اضافه کردن event listener به radio button ها
+                const radioButtons = questionDiv.querySelectorAll("input[type='radio']");
+                radioButtons.forEach(button => {
+                    button.addEventListener("change", checkAnswer);
+                });
+
+                document.getElementById("next-button").style.display = "none";
+            } else {
+                // نمایش پیام پایان آزمون و نمره
+                quizContainer.innerHTML = "<p>آزمون به پایان رسید!</p>";
+                document.getElementById("score-display").textContent = "نمره شما: " + totalScore + " از " + (questions.length * questions[0].points);
+                document.getElementById("restart-button").style.display = "block";
+            }
+        }
+
+        function checkAnswer() {
+            const selectedOption = document.querySelector(`input[name='q${currentQuestionIndex}']:checked`);
+            if (selectedOption) {
+                const userAnswer = parseInt(selectedOption.value);
+                userAnswers[currentQuestionIndex] = userAnswer;
+
+                const feedbackDiv = document.querySelector(".question.active .feedback");
+                if (userAnswer === questions[currentQuestionIndex].correctAnswer) {
+                    feedbackDiv.textContent = "پاسخ صحیح است!";
+                    feedbackDiv.className = "feedback correct";
+                    totalScore += questions[currentQuestionIndex].points; // اضافه کردن امتیاز
+                    document.getElementById("next-button").style.display = "block";
+                } else {
+                    feedbackDiv.textContent = "پاسخ اشتباه است. دوباره تلاش کنید.";
+                    feedbackDiv.className = "feedback incorrect";
+                    restartQuiz(); // ری‌استارت کردن آزمون
+                }
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            totalScore = 0; // ریست کردن امتیاز
+            displayQuestion();
+            document.getElementById("restart-button").style.display = "none";
+            document.getElementById("score-display").textContent = ""; // پاک کردن نمره قبلی
+        }
+
+        // نمایش اولین سوال
+        displayQuestion();
+    </script>
+</body>
+</html>
